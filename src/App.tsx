@@ -123,6 +123,16 @@ function App() {
     };
   };
 
+  const calculateTextPosition = (index: number, total: number) => {
+    const sliceAngle = 360 / total;
+    const rotation = (sliceAngle * index) + (sliceAngle / 2);
+    const radius = 35;
+    
+    return {
+        transform: `rotate(${rotation}, 50, 50) translate(0, -${radius})`
+    };
+};
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex flex-col items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8">
@@ -143,54 +153,57 @@ function App() {
               }}
             >
               <circle cx="50" cy="50" r="48" fill="white" stroke="#E5E7EB" strokeWidth="4"/>
+              <g>
               {items.map((item, index) => {
                 const sliceStyles = calculateSliceStyles(index, items.length);
                 return (
-                  <g key={item.id}>
-                    <path
-                      d={sliceStyles.d}
-                      fill={item.color}
-                      className="transition-colors"
-                    />
-                    <text
-                      x="50"
-                      y="20"
-                      textAnchor="middle"
-                      fill="white"
-                      fontWeight="bold"
-                      fontSize="6"
-                      transform={`rotate(${(360 / items.length) * index + (360 / items.length / 2)} 50 50)`}
-                      className="select-none"
-                      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
-                    >
-                      {item.text}
-                    </text>
-                    <text
-                      x="50"
-                      y="30"
-                      textAnchor="middle"
-                      fontSize="8"
-                      transform={`rotate(${(360 / items.length) * index + (360 / items.length / 2)} 50 50)`}
-                      className="select-none"
-                    >
-                    </text>
-                  </g>
+                  <path
+                    key={`slice-${item.id}`}
+                    d={sliceStyles.d}
+                    fill={item.color}
+                    className="transition-colors"
+                  />
                 );
               })}
+            </g>
+            <g>
+            {items.map((item, index) => {
+              const textPosition = calculateTextPosition(index, items.length);
+              return (
+                <text
+                  key={`text-${item.id}`}
+                  x="50"
+                  y="50"
+                  textAnchor="middle"
+                  fill="white"
+                  fontWeight="bold"
+                  fontSize="6"
+                  dominantBaseline="middle"
+                  style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
+                  transform={textPosition.transform}
+                  className="select-none"
+                >
+                  {item.text}
+                </text>
+              );
+            })}
+          </g>
             </svg>
 
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div 
-                className="w-16 h-16 rounded-full bg-white flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
-                onClick={spinWheel}
-                style={{
-                  boxShadow: '0 0 20px rgba(0,0,0,0.2)',
-                  border: '4px solid #333',
-                }}
-              >
-                <Play className="w-10 h-10 text-gray-800 ml-2" />
+            {!isSpinning && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div 
+                  className="w-16 h-16 rounded-full bg-white flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                  onClick={spinWheel}
+                  style={{
+                    boxShadow: '0 0 20px rgba(0,0,0,0.2)',
+                    border: '4px solid #333',
+                  }}
+                >
+                  <Play className="w-10 h-10 text-gray-800 ml-2" />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
               <div 
