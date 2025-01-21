@@ -135,13 +135,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex flex-col items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl pt-8 bg-transparent" id='centerDiv'>
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Kim kazanacak ?</h1>
-          <p className="text-gray-600">Çarkı çevir ve şansını dene!</p>
+          <p className="text-gray-900">Çarkı çevir ve şansını dene!</p>
         </div>
 
-        <div className="relative w-96 h-96 mx-auto mb-8">
+        <div className="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8">
           <div className="relative w-full h-full">
             <svg 
               ref = {wheelRef}
@@ -149,7 +149,9 @@ function App() {
               className="w-full h-full"
               style={{ 
                 transformOrigin: 'center',
-                filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.1))'
+                filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.1))',
+                border: '2px solid #fff',
+                borderRadius: '50%',
               }}
             >
               <circle cx="50" cy="50" r="48" fill="white" stroke="#E5E7EB" strokeWidth="4"/>
@@ -218,23 +220,23 @@ function App() {
           </div>
         </div>
 
-        <div className="flex justify-center gap-4 mb-4">
+        <div className="flex flex-col justify-center items-center gap-4 mb-4">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors"
           >
             <Plus size={20} /> Yeni Ekle
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
           >
             <Trash2 size={20} /> Sil
           </button>
         </div>
 
         {result && (
-          <div className="mt-4 text-lg font-semibold text-center text-gray-800">
+          <div className="mt-4 text-lg font-semibold text-center text-gray-800 pb-8">
             Seçilen: <span className="text-purple-600">{result}</span>!
           </div>
         )}
