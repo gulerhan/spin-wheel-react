@@ -27,12 +27,13 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItemText, setNewItemText] = useState('');
   const wheelRef = useRef<SVGSVGElement | null>(null);
+  const [currentRotation, setCurrentRotation] = useState(0);
   
   const [items, setItems] = useState<WheelItem[]>([
     { id: '1', text: 'Doğruluk', color: '#FF0000'},
-    { id: '2', text: 'Doğruluk', color: '#FF69B4'},
-    { id: '3', text: 'Cesaretlik', color: '#FF1493'},
-    { id: '4', text: 'Doğruluk', color: '#8A2BE2'},
+    { id: '2', text: 'Cesaretlik', color: '#FF69B4'},
+    { id: '3', text: 'Doğruluk', color: '#FF1493'},
+    { id: '4', text: 'Cesaretlik', color: '#8A2BE2'},
   ]);
 
   const spinWheel = () => {
@@ -44,17 +45,19 @@ function App() {
     const minSpins = 5;
     const maxSpins = 8;
     const spins = minSpins + Math.random() * (maxSpins - minSpins);
-    const degrees = spins * 360 + Math.floor(Math.random() * 360);
+    const additionalDegrees = Math.floor(Math.random() * 360);
+    const totalDegrees = spins * 360 + additionalDegrees;
+    const finalRotation = currentRotation + totalDegrees;
     
     if (wheelRef.current) {
       wheelRef.current.style.transition = 'none';
-      wheelRef.current.style.transform = 'rotate(0deg)';
+      wheelRef.current.style.transform = `rotate(${currentRotation}deg)`;
       
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (wheelRef.current) {
             wheelRef.current.style.transition = 'transform 8s cubic-bezier(0.32, 0.06, 0.32, 0.95)';
-            wheelRef.current.style.transform = `rotate(${degrees}deg)`;
+            wheelRef.current.style.transform = `rotate(${finalRotation}deg)`;
           }
         });
       });
@@ -62,9 +65,16 @@ function App() {
 
     setTimeout(() => {
       setIsSpinning(false);
-      const winningIndex = Math.floor((360 - (degrees % 360)) / (360 / items.length));
+      setCurrentRotation(finalRotation);
+      
+      // Calculate the winning index based on where the arrow stops
+      const normalizedRotation = finalRotation % 360;
+      const sliceAngle = 360 / items.length;
+      
+      // Since the wheel rotates clockwise and arrow points at 0 degrees (top)
+      const winningIndex = Math.floor(normalizedRotation / sliceAngle);
       setResult(items[winningIndex].text);
-    }, 8000); 
+    }, 8000);
   };
 
   const handleDeleteItem = (id: string) => {
@@ -91,9 +101,12 @@ function App() {
 
   useEffect(() => {
     if (wheelRef.current) {
-      wheelRef.current.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+      wheelRef.current.style.transition = 'none';
+      wheelRef.current.style.transform = 'rotate(0deg)';
     }
-  }, []);
+    setCurrentRotation(0);
+    setResult(null);
+  }, [items.length]);
 
   const calculateSliceStyles = (index: number, total: number) => {
     const angle = 360 / total;
@@ -125,13 +138,30 @@ function App() {
 
   const calculateTextPosition = (index: number, total: number) => {
     const sliceAngle = 360 / total;
-    const rotation = (sliceAngle * index) + (sliceAngle / 2);
-    const radius = 35;
+    const midAngle = ((index * sliceAngle) + (sliceAngle / 2)) * (Math.PI / 180);
+    const radius = 32; // Slightly reduced radius for better positioning
+    
+    // Calculate position using trigonometry for exact center of slice
+    const x = 50 + (radius * Math.cos(midAngle));
+    const y = 50 + (radius * Math.sin(midAngle));
+    
+    // Calculate rotation to keep text horizontal
+    const rotation = (index * sliceAngle) + (sliceAngle / 2);
+    const adjustedRotation = rotation > 180 ? rotation - 180 : rotation;
     
     return {
-        transform: `rotate(${rotation}, 50, 50) translate(0, -${radius})`
+      x,
+      y,
+      rotation: adjustedRotation - 90 // Adjust rotation to keep text readable
     };
-};
+  };
+
+  const calculateFontSize = (total: number) => {
+    // Dynamic font size based on number of items
+    const baseFontSize = 8;
+    const scaleFactor = Math.max(0.5, 1 - (total * 0.05));
+    return Math.max(4, baseFontSize * scaleFactor);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex flex-col items-center justify-center p-4">
@@ -169,27 +199,28 @@ function App() {
               })}
             </g>
             <g>
-            {items.map((item, index) => {
-              const textPosition = calculateTextPosition(index, items.length);
-              return (
-                <text
-                  key={`text-${item.id}`}
-                  x="50"
-                  y="50"
-                  textAnchor="middle"
-                  fill="white"
-                  fontWeight="bold"
-                  fontSize="6"
-                  dominantBaseline="middle"
-                  style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
-                  transform={textPosition.transform}
-                  className="select-none"
-                >
-                  {item.text}
-                </text>
-              );
-            })}
-          </g>
+              {items.map((item, index) => {
+                const textPosition = calculateTextPosition(index, items.length);
+                const fontSize = calculateFontSize(items.length);
+                return (
+                  <text
+                    key={`text-${item.id}`}
+                    x={textPosition.x}
+                    y={textPosition.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="white"
+                    fontWeight="bold"
+                    fontSize={fontSize}
+                    style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
+                    transform={`rotate(${textPosition.rotation}, ${textPosition.x}, ${textPosition.y})`}
+                    className="select-none"
+                  >
+                    {item.text}
+                  </text>
+                );
+              })}
+            </g>
             </svg>
 
             {!isSpinning && (
