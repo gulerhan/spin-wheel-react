@@ -283,7 +283,7 @@ function App() {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
           <div className="rounded-lg p-6 max-w-md w-full bg-gradient-to-br from-purple-600 to-blue-500">
-            <h2 className="text-xl font-bold mb-4">Delete Option</h2>
+            <h2 className="text-xl font-bold mb-4 text-white text-center">Delete Option</h2>
             <div className="max-h-60 overflow-y-auto flex flex-col gap-4">
               {items.map(item => (
                 <div
@@ -314,12 +314,12 @@ function App() {
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-md w-full bg-gradient-to-br from-purple-600 to-blue-500">
-            <h2 className="text-xl font-bold mb-4">Add New Option</h2>
+            <h2 className="text-xl font-bold mb-4 text-white text-center">Add New Option</h2>
             <input
               type="text"
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}
-              placeholder="Write option.."
+              placeholder="Write your option.."
               className="w-full p-2 border rounded-lg mb-4 bg-transparent focus:outline-none" 
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
             />
