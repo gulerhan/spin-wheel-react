@@ -288,12 +288,13 @@ function App() {
               {items.map(item => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-2 hover:bg-gray-100 rounded border-b border-gray-300"
+                  tabIndex={0}
+                  className="flex items-center justify-between p-2 hover:bg-gray-100 rounded border-b border-gray-300 focus:bg-transparent focus:outline-none"
                 >
-                  <span>{item.text}</span>
+                  <span className='text-white'>{item.text}</span>
                   <button
                     onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 "
                   >
                     <Trash2 size={20} />
                   </button>
