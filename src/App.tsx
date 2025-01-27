@@ -320,7 +320,7 @@ function App() {
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}
               placeholder="Write option.."
-              className="w-full p-2 border rounded-lg mb-4 bg-transparent"
+              className="w-full p-2 border rounded-lg mb-4 bg-transparent focus:outline-none" 
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
             />
             <div className="flex gap-2">
