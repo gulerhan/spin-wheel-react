@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Plus, Trash2 } from 'lucide-react';
+import Confetti from 'react-confetti';
 
 interface WheelItem {
   id: string;
@@ -8,39 +9,37 @@ interface WheelItem {
 }
 
 const COLORS = [
-  '#FF3131',
-  '#FF1493',
-  '#9400D3',
-  '#0000FF', 
-  '#00BFFF', 
-  '#00FF00',
-  '#FFD700', 
-  '#FFA500',
-  '#FF4500', 
-  '#FF69B4', 
+  '#7C3AED', 
+  '#4F46E5', 
+  '#0EA5E9', 
+  '#3730A3', 
+  '#8B5CF6', 
+  '#6D28D9',
+  '#4C1D95', 
+  '#3730A3',
 ];
 
 function App() {
   const [isSpinning, setIsSpinning] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItemText, setNewItemText] = useState('');
   const wheelRef = useRef<SVGSVGElement | null>(null);
   const [currentRotation, setCurrentRotation] = useState(0);
-  
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowDimensions, setWindowDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+
   const [items, setItems] = useState<WheelItem[]>([
-    { id: '1', text: 'Doğruluk', color: '#FF0000'},
-    { id: '2', text: 'Cesaretlik', color: '#FF69B4'},
-    { id: '3', text: 'Doğruluk', color: '#FF1493'},
-    { id: '4', text: 'Cesaretlik', color: '#8A2BE2'},
+    { id: '1', text: 'Item 1', color: '#FF0000'},
+    { id: '2', text: 'Item 2', color: '#FF69B4'},
+    { id: '3', text: 'Item 3', color: '#FF1493'},
+    { id: '4', text: 'Item 4', color: '#8A2BE2'},
   ]);
 
   const spinWheel = () => {
     if (isSpinning || items.length < 2) return;
     
     setIsSpinning(true);
-    setResult(null);
     
     const minSpins = 5;
     const maxSpins = 8;
@@ -66,16 +65,14 @@ function App() {
     setTimeout(() => {
       setIsSpinning(false);
       setCurrentRotation(finalRotation);
-      
-      // Calculate the winning index based on where the arrow stops
-      const normalizedRotation = finalRotation % 360;
-      const sliceAngle = 360 / items.length;
-      
-      // Since the wheel rotates clockwise and arrow points at 0 degrees (top)
-      const winningIndex = Math.floor(normalizedRotation / sliceAngle);
-      setResult(items[winningIndex].text);
+      setShowConfetti(true);
+
+      setTimeout(() => {
+        setShowConfetti(false);
+      }, 3000);
     }, 8000);
   };
+
 
   const handleDeleteItem = (id: string) => {
     if (items.length <= 2) {
@@ -105,8 +102,19 @@ function App() {
       wheelRef.current.style.transform = 'rotate(0deg)';
     }
     setCurrentRotation(0);
-    setResult(null);
   }, [items.length]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const calculateSliceStyles = (index: number, total: number) => {
     const angle = 360 / total;
@@ -164,11 +172,14 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#7C3AED] to-[#3730A3] flex flex-col items-center justify-center p-4">
+      <div className={`absolute inset-0 transition-opacity duration-1000 ${showConfetti ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+  <Confetti width={windowDimensions.width} height={windowDimensions.height} />
+</div>
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl pt-8 bg-transparent" id='centerDiv'>
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Kim kazanacak ?</h1>
-          <p className="text-gray-900">Çarkı çevir ve şansını dene!</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Spin of Fortune</h1>
+          <p className="text-gray-900">Spin the wheel and try your luck!</p>
         </div>
 
         <div className="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8">
@@ -184,7 +195,7 @@ function App() {
                 borderRadius: '50%',
               }}
             >
-              <circle cx="50" cy="50" r="48" fill="white" stroke="#E5E7EB" strokeWidth="4"/>
+              <circle cx="50" cy="50" r="48" fill="#5B21B6" stroke="#8B5CF6" strokeWidth="4"/>
               <g>
               {items.map((item, index) => {
                 const sliceStyles = calculateSliceStyles(index, items.length);
@@ -194,6 +205,8 @@ function App() {
                     d={sliceStyles.d}
                     fill={item.color}
                     className="transition-colors"
+                    stroke="#fff" 
+                    strokeWidth="0.5"  
                   />
                 );
               })}
@@ -237,7 +250,6 @@ function App() {
                 </div>
               </div>
             )}
-
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
               <div 
                 className="w-8 h-12"
@@ -251,35 +263,33 @@ function App() {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center items-center gap-4 mb-4">
+        <div className="flex flex-col justify-center items-center gap-4 mb-4 relative z-10">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#10B981] text-white hover:bg-[#059669] transition-colors"
           >
-            <Plus size={20} /> Yeni Ekle
+            <Plus size={20} /> Add New
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#EF4444] text-white hover:bg-[#DC2626] transition-colors"
           >
-            <Trash2 size={20} /> Sil
+            <Trash2 size={20} /> Delete
           </button>
         </div>
 
-        {result && (
-          <div className="mt-4 text-lg font-semibold text-center text-gray-800 pb-8">
-            Seçilen: <span className="text-purple-600">{result}</span>!
-          </div>
-        )}
       </div>
 
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Seçenek Sil</h2>
-            <div className="max-h-60 overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
+          <div className="rounded-lg p-6 max-w-md w-full bg-gradient-to-br from-purple-600 to-blue-500">
+            <h2 className="text-xl font-bold mb-4">Delete Option</h2>
+            <div className="max-h-60 overflow-y-auto flex flex-col gap-4">
               {items.map(item => (
-                <div key={item.id} className="flex items-center justify-between p-2 hover:bg-gray-100 rounded">
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-2 hover:bg-gray-100 rounded border-b border-gray-300"
+                >
                   <span>{item.text}</span>
                   <button
                     onClick={() => handleDeleteItem(item.id)}
@@ -292,9 +302,9 @@ function App() {
             </div>
             <button
               onClick={() => setShowDeleteModal(false)}
-              className="mt-4 w-full px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              className="mt-4 w-full px-4 py-2 bg-[#6B7280] text-white rounded-lg hover:bg-[#4B5563] transition-colors"
             >
-              Kapat
+              Close
             </button>
           </div>
         </div>
@@ -302,28 +312,28 @@ function App() {
 
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Yeni Seçenek Ekle</h2>
+          <div className="bg-white rounded-lg p-6 max-w-md w-full bg-gradient-to-br from-purple-600 to-blue-500">
+            <h2 className="text-xl font-bold mb-4">Add New Option</h2>
             <input
               type="text"
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}
-              placeholder="Seçenek yazın"
-              className="w-full p-2 border rounded-lg mb-4"
+              placeholder="Write option.."
+              className="w-full p-2 border rounded-lg mb-4 bg-transparent"
               onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
             />
             <div className="flex gap-2">
               <button
                 onClick={handleAddItem}
-                className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                className="flex-1 px-4 py-2 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-colors"
               >
-                Ekle
+                Add
               </button>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                className="flex-1 px-4 py-2 bg-[#6B7280] text-white rounded-lg hover:bg-[#4B5563] transition-colors"
               >
-                İptal
+                Cancel
               </button>
             </div>
           </div>
