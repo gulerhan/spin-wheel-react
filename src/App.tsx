@@ -200,23 +200,21 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#7C3AED] to-[#3730A3] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#7C3AED] to-[#3730A3] flex flex-col items-center justify-evenly p-4">
       <div className={`absolute inset-0 transition-opacity duration-1000 ${showConfetti ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
         <Confetti width={windowDimensions.width} height={windowDimensions.height} />
       </div>
-      
-      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl pt-8 bg-transparent" id='centerDiv'>
-        <div className="text-center mb-8">
+      <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Spin of Fortune</h1>
           <p className="text-gray-900">Spin the wheel and try your luck!</p>
         </div>
-
+      <div className="max-w-2xl w-full bg-white rounded-2xl pt-8 bg-transparent" id='centerDiv'>
         <div className="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8">
           <div className="relative w-full h-full">
             <svg 
               ref={wheelRef}
               viewBox="0 0 100 100"
-              className="w-full h-full"
+              className="w-full h-full wheel"
               style={{ 
                 transformOrigin: 'center',
                 filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.1))',
@@ -294,8 +292,10 @@ function App() {
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="flex flex-col justify-center items-center gap-4 mb-4 relative z-10">
+
+      <div className="flex flex-col justify-center items-center gap-4 mb-4 relative z-10 w-full">
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#10B981] text-white hover:bg-[#059669] transition-colors"
@@ -309,7 +309,6 @@ function App() {
             <Trash2 size={20} /> Delete
           </button>
         </div>
-      </div>
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
