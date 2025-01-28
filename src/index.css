@@ -6,7 +6,7 @@
   clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
 }
 
-#centerDiv{
+#centerDiv {
   background: transparent;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
@@ -17,3 +17,19 @@ input::placeholder {
   font-size: 14px;
 }
 
+@keyframes pointerMove {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.pointer-animation {
+  transform-origin: center;
+  animation: pointerMove 0.2s ease-in-out;
+}

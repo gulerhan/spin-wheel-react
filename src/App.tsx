@@ -28,6 +28,8 @@ function App() {
   const [currentRotation, setCurrentRotation] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowDimensions, setWindowDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [pointerKey, setPointerKey] = useState(0);
+  const lastRotation = useRef(0);
 
   const [items, setItems] = useState<WheelItem[]>([
     { id: '1', text: 'Item 1', color: '#FF0000'},
@@ -36,13 +38,43 @@ function App() {
     { id: '4', text: 'Item 4', color: '#8A2BE2'},
   ]);
 
+  useEffect(() => {
+    if (isSpinning) {
+      const checkRotation = () => {
+        if (wheelRef.current) {
+          const currentTransform = getComputedStyle(wheelRef.current).transform;
+          const values = currentTransform.split('(')[1].split(')')[0].split(',');
+          const a = values[0];
+          const b = values[1];
+          const currentAngle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+          
+          const sliceAngle = 360 / items.length;
+          const normalizedCurrent = ((currentAngle % 360) + 360) % 360;
+          const normalizedLast = ((lastRotation.current % 360) + 360) % 360;
+          
+          if (Math.floor(normalizedCurrent / sliceAngle) !== Math.floor(normalizedLast / sliceAngle)) {
+            setPointerKey(prev => prev + 1);
+          }
+          
+          lastRotation.current = currentAngle;
+        }
+        
+        if (isSpinning) {
+          requestAnimationFrame(checkRotation);
+        }
+      };
+      
+      requestAnimationFrame(checkRotation);
+    }
+  }, [isSpinning, items.length]);
+
   const spinWheel = () => {
     if (isSpinning || items.length < 2) return;
     
     setIsSpinning(true);
     
-    const minSpins = 5;
-    const maxSpins = 8;
+    const minSpins = 8;
+    const maxSpins = 12;
     const spins = minSpins + Math.random() * (maxSpins - minSpins);
     const additionalDegrees = Math.floor(Math.random() * 360);
     const totalDegrees = spins * 360 + additionalDegrees;
@@ -55,7 +87,7 @@ function App() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (wheelRef.current) {
-            wheelRef.current.style.transition = 'transform 8s cubic-bezier(0.32, 0.06, 0.32, 0.95)';
+            wheelRef.current.style.transition = 'transform 12s cubic-bezier(0.16, 1, 0.3, 1)';
             wheelRef.current.style.transform = `rotate(${finalRotation}deg)`;
           }
         });
@@ -70,9 +102,8 @@ function App() {
       setTimeout(() => {
         setShowConfetti(false);
       }, 3000);
-    }, 8000);
+    }, 12000);
   };
-
 
   const handleDeleteItem = (id: string) => {
     if (items.length <= 2) {
@@ -147,25 +178,22 @@ function App() {
   const calculateTextPosition = (index: number, total: number) => {
     const sliceAngle = 360 / total;
     const midAngle = ((index * sliceAngle) + (sliceAngle / 2)) * (Math.PI / 180);
-    const radius = 32; // Slightly reduced radius for better positioning
+    const radius = 32;
     
-    // Calculate position using trigonometry for exact center of slice
     const x = 50 + (radius * Math.cos(midAngle));
     const y = 50 + (radius * Math.sin(midAngle));
     
-    // Calculate rotation to keep text horizontal
     const rotation = (index * sliceAngle) + (sliceAngle / 2);
     const adjustedRotation = rotation > 180 ? rotation - 180 : rotation;
     
     return {
       x,
       y,
-      rotation: adjustedRotation - 90 // Adjust rotation to keep text readable
+      rotation: adjustedRotation - 90
     };
   };
 
   const calculateFontSize = (total: number) => {
-    // Dynamic font size based on number of items
     const baseFontSize = 8;
     const scaleFactor = Math.max(0.5, 1 - (total * 0.05));
     return Math.max(4, baseFontSize * scaleFactor);
@@ -174,8 +202,9 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#7C3AED] to-[#3730A3] flex flex-col items-center justify-center p-4">
       <div className={`absolute inset-0 transition-opacity duration-1000 ${showConfetti ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-  <Confetti width={windowDimensions.width} height={windowDimensions.height} />
-</div>
+        <Confetti width={windowDimensions.width} height={windowDimensions.height} />
+      </div>
+      
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl pt-8 bg-transparent" id='centerDiv'>
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Spin of Fortune</h1>
@@ -185,7 +214,7 @@ function App() {
         <div className="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8">
           <div className="relative w-full h-full">
             <svg 
-              ref = {wheelRef}
+              ref={wheelRef}
               viewBox="0 0 100 100"
               className="w-full h-full"
               style={{ 
@@ -197,43 +226,43 @@ function App() {
             >
               <circle cx="50" cy="50" r="48" fill="#5B21B6" stroke="#8B5CF6" strokeWidth="4"/>
               <g>
-              {items.map((item, index) => {
-                const sliceStyles = calculateSliceStyles(index, items.length);
-                return (
-                  <path
-                    key={`slice-${item.id}`}
-                    d={sliceStyles.d}
-                    fill={item.color}
-                    className="transition-colors"
-                    stroke="#fff" 
-                    strokeWidth="0.5"  
-                  />
-                );
-              })}
-            </g>
-            <g>
-              {items.map((item, index) => {
-                const textPosition = calculateTextPosition(index, items.length);
-                const fontSize = calculateFontSize(items.length);
-                return (
-                  <text
-                    key={`text-${item.id}`}
-                    x={textPosition.x}
-                    y={textPosition.y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill="white"
-                    fontWeight="bold"
-                    fontSize={fontSize}
-                    style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
-                    transform={`rotate(${textPosition.rotation}, ${textPosition.x}, ${textPosition.y})`}
-                    className="select-none"
-                  >
-                    {item.text}
-                  </text>
-                );
-              })}
-            </g>
+                {items.map((item, index) => {
+                  const sliceStyles = calculateSliceStyles(index, items.length);
+                  return (
+                    <path
+                      key={`slice-${item.id}`}
+                      d={sliceStyles.d}
+                      fill={item.color}
+                      className="transition-colors"
+                      stroke="#fff" 
+                      strokeWidth="0.5"  
+                    />
+                  );
+                })}
+              </g>
+              <g>
+                {items.map((item, index) => {
+                  const textPosition = calculateTextPosition(index, items.length);
+                  const fontSize = calculateFontSize(items.length);
+                  return (
+                    <text
+                      key={`text-${item.id}`}
+                      x={textPosition.x}
+                      y={textPosition.y}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="white"
+                      fontWeight="bold"
+                      fontSize={fontSize}
+                      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}
+                      transform={`rotate(${textPosition.rotation}, ${textPosition.x}, ${textPosition.y})`}
+                      className="select-none"
+                    >
+                      {item.text}
+                    </text>
+                  );
+                })}
+              </g>
             </svg>
 
             {!isSpinning && (
@@ -250,13 +279,16 @@ function App() {
                 </div>
               </div>
             )}
+            
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
               <div 
-                className="w-8 h-12"
+                key={pointerKey}
+                className="w-8 h-12 pointer-animation"
                 style={{ 
                   background: '#333',
                   clipPath: 'polygon(50% 100%, 0 0, 100% 0)',
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                  transformOrigin: 'top center'
                 }}
               ></div>
             </div>
@@ -277,7 +309,6 @@ function App() {
             <Trash2 size={20} /> Delete
           </button>
         </div>
-
       </div>
 
       {showDeleteModal && (
@@ -294,7 +325,7 @@ function App() {
                   <span className='text-white'>{item.text}</span>
                   <button
                     onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-500 hover:text-red-700 "
+                    className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 size={20} />
                   </button>
