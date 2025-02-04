@@ -16,22 +16,6 @@ input::placeholder {
   font-size: 14px;
 }
 
-@keyframes pointerMove {
-  0% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(20deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-.pointer-animation {
-  transform-origin: center;
-  animation: pointerMove 0.2s ease-in-out;
-}
 
 .wheel {
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.3));

@@ -281,7 +281,7 @@ function App() {
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
               <div 
                 key={pointerKey}
-                className="w-8 h-12 pointer-animation"
+                className="w-8 h-12"
                 style={{ 
                   background: '#333',
                   clipPath: 'polygon(50% 100%, 0 0, 100% 0)',
@@ -295,31 +295,31 @@ function App() {
       </div>
 
 
-      <div className="flex flex-col justify-center items-center gap-4 mb-4 relative z-10 w-full">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#10B981] text-white hover:bg-[#059669] transition-colors"
-          >
-            <Plus size={20} /> Add New
-          </button>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#EF4444] text-white hover:bg-[#DC2626] transition-colors"
-          >
-            <Trash2 size={20} /> Delete
-          </button>
-        </div>
+      <div className={`flex flex-col justify-center items-center gap-4 mb-4 relative z-10 w-full transition-opacity duration-300 ${isSpinning ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+    <button
+      onClick={() => setShowAddModal(true)}
+      className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#10B981] text-white hover:bg-[#059669] transition-colors"
+    >
+      <Plus size={20} /> Add New
+    </button>
+    <button
+      onClick={() => setShowDeleteModal(true)}
+      className="flex items-center justify-center gap-2 px-4 py-2 w-full max-w-xs rounded-lg bg-[#EF4444] text-white hover:bg-[#DC2626] transition-colors"
+    >
+      <Trash2 size={20} /> Delete
+    </button>
+</div>
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
           <div className="rounded-lg p-6 max-w-md w-full bg-gradient-to-br from-purple-600 to-blue-500">
-            <h2 className="text-xl font-bold mb-4 text-white text-center">Delete Option</h2>
+            <h2 className="text-xl font-bold mb-4 text-white text-center">Delete Options</h2>
             <div className="max-h-60 overflow-y-auto flex flex-col gap-4">
               {items.map(item => (
                 <div
                   key={item.id}
                   tabIndex={0}
-                  className="flex items-center justify-between p-2 hover:bg-gray-100 rounded border-b border-gray-300 focus:bg-transparent focus:outline-none"
+                  className="flex items-center justify-between p-2 hover:bg-gray-100 rounded border border-gray-300 focus:bg-transparent focus:outline-none"
                 >
                   <span className='text-white'>{item.text}</span>
                   <button
