@@ -314,12 +314,12 @@ function App() {
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
           <div className="rounded-lg p-6 max-w-md w-full bg-gradient-to-br from-purple-600 to-blue-500">
             <h2 className="text-xl font-bold mb-4 text-white text-center">Delete Options</h2>
-            <div className="max-h-60 overflow-y-auto flex flex-col gap-4">
+            <div className="max-h-60 overflow-y-auto flex flex-col gap-4 scrollbar-custom">
               {items.map(item => (
                 <div
                   key={item.id}
                   tabIndex={0}
-                  className="flex items-center justify-between p-2 hover:bg-gray-100 rounded border border-gray-300 focus:bg-transparent focus:outline-none"
+                  className="flex items-center justify-between p-2 hover:bg-none rounded border border-gray-300 focus:bg-transparent focus:outline-none"
                 >
                   <span className='text-white'>{item.text}</span>
                   <button

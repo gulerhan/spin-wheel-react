@@ -24,3 +24,21 @@ input::placeholder {
   rgba(0, 0, 0, 0.12) 0px 4px 6px 0px,   
   rgba(0, 0, 0, 0.17) 0px 6px 12px 0px; 
 }
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;  
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent; 
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #666;  
+  border-radius: 4px;  
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #888; 
+}
